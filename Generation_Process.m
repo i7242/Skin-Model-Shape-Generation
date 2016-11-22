@@ -15,6 +15,9 @@ M.Seg(8,8);
 M.ShowSEG;
 
 %% *3 or reload the model after segmentation
+% This is because each time the numbering of segmentation result is
+% changing. To specify the surface I already konw, a model is saved in
+% advance and reload here.
 load M;
 
 %% 4 Simulate deviations for each surfaces

@@ -392,32 +392,15 @@ classdef SkinModel < handle & dynamicprops
                 end
             end
             
-            % Non-closed surface mesh will have edges on the boundary
-            mark=[];
-            for i=1:size(ET,1)
-                if (ET(i,1)==0)||(ET(i,2)==0)
-                    mark=[mark;i];
-                end
-            end
-            EV(mark,:)=[];
-            ET(mark,:)=[];
-            
             % Calculation of the modes
             n_e=size(EV,1);
-            DIF=zeros(n_e,1);
-            for i=1:n_e
-                DIF(i,1)=(norm(Obj.(name).VN(EV(i,1),1:3)-Obj.(name).VN(EV(i,2),1:3)))^2;% This is important part, and need to improve !
-            end
-            if mean(DIF)>0.001
-                DIF=DIF/mean(DIF);
-            end
             W=zeros(n_e,1);
             for i=1:n_e
-                W(i,1)=norm(Obj.(name).V(EV(i,1),1:3)-Obj.(name).V(EV(i,2),1:3))*exp(-DIF(i,1));
+                W(i,1)=norm(Obj.(name).V(EV(i,1),1:3)-Obj.(name).V(EV(i,2),1:3));
             end
             n_v=size(Obj.(name).V,1);
-            L=sparse(n_v,n_v);
-            L2=sparse(n_v,n_v);
+            L=zeros(n_v,n_v);
+            L2=zeros(n_v,n_v);
             for i=1:n_e
                 L(EV(i,1),EV(i,2))=W(i,1);
             end
@@ -426,20 +409,25 @@ classdef SkinModel < handle & dynamicprops
                 L2(i,i)=sum(L(i,:));
             end
             L=L2-L;
+            L=sparse(L);
             [Veig,~]=eigs(L,id_mode,'SM');
-            Veig(:,2:id_mode)=[];
+            Veig=Veig(:,1);
+
             % Normalize the mode
             m=max(abs(Veig));
             Veig=Veig/m*0.5;
+            Obj.(name).D=zeros(size(Obj.(name).V,1),1);
             Obj.(name).D=Obj.(name).D+Veig*scale;
             
             % Show the mode simulated
             Color=zeros(size(Obj.V,1),1);
+            div=zeros(size(Obj.V,1),3);
             for i=1:size(Obj.(name).V,1)
                 Color(Obj.(name).V(i,4),1)=Veig(i,1);
+                div(Obj.(name).V(i,4),1:3)=Obj.(name).VN(i,1:3)*Veig(i,1)*scale;
             end
             figure
-            trisurf(Obj.(name).T(:,1:3),Obj.V(:,1),Obj.V(:,2),Obj.V(:,3),Color);
+            trisurf(Obj.(name).T(:,1:3),Obj.V(:,1)+div(:,1),Obj.V(:,2)+div(:,2),Obj.V(:,3)+div(:,3),Color);
             colormap jet
             axis equal
             axis off
@@ -453,6 +441,7 @@ classdef SkinModel < handle & dynamicprops
             end
         end
         
+        % Plot original model
         function ShowORG( Obj )
             figure
             map=trisurf(Obj.T,Obj.V(:,1),Obj.V(:,2),Obj.V(:,3));
@@ -461,6 +450,7 @@ classdef SkinModel < handle & dynamicprops
             axis off
         end
         
+        % Plot segmented model
         function ShowSEG( Obj , id )
             % If want show all features, no input
             % If want to show certain surface, input its id (number)
@@ -482,6 +472,7 @@ classdef SkinModel < handle & dynamicprops
             axis off
         end
         
+        % Plot generated Skin Model
         function ShowSM( Obj )
             figure
             trisurf(Obj.T,Obj.SM.V(:,1),Obj.SM.V(:,2),Obj.SM.V(:,3),Obj.SM.CL,'FaceColor','Interp');

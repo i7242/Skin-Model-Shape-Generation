@@ -356,7 +356,7 @@ classdef SkinModel < handle & dynamicprops
         function MD(Obj, id_surf, id_mode, scale)
             name=['SF',num2str(id_surf)];
             
-            % Calculation of the modes
+            % Calculation of the edge information
             EG=zeros(size(Obj.(name).V,1),size(Obj.(name).V,1));
             for i=1:size(Obj.(name).T,1)
                 n1=find(Obj.(name).V(:,4)==Obj.(name).T(i,1));
@@ -396,8 +396,13 @@ classdef SkinModel < handle & dynamicprops
             n_e=size(EV,1);
             W=zeros(n_e,1);
             for i=1:n_e
+                % Laplacian
                 W(i,1)=norm(Obj.(name).V(EV(i,1),1:3)-Obj.(name).V(EV(i,2),1:3));
             end
+            % Scaled the weight to [0,3], thus the calculation not influenced by the size of the model.
+            W=3*W/max(W);
+            % 'exp' reduced the problem on the boundary, and the result is better
+            W=exp(-W);
             n_v=size(Obj.(name).V,1);
             L=zeros(n_v,n_v);
             L2=zeros(n_v,n_v);
@@ -413,21 +418,22 @@ classdef SkinModel < handle & dynamicprops
             [Veig,~]=eigs(L,id_mode,'SM');
             Veig=Veig(:,1);
 
-            % Normalize the mode
+            % Normalize and scale the mode
             m=max(abs(Veig));
             Veig=Veig/m*0.5;
             Obj.(name).D=zeros(size(Obj.(name).V,1),1);
-            Obj.(name).D=Obj.(name).D+Veig*scale;
+            Obj.(name).D=Obj.(name).D+Veig*scale; % This is to combin with other deviaitons
             
-            % Show the mode simulated
+            % Show the mode simulated, and deviation is amplified 10 times.
             Color=zeros(size(Obj.V,1),1);
-            div=zeros(size(Obj.V,1),3);
+            Div=zeros(size(Obj.V,1),3);
             for i=1:size(Obj.(name).V,1)
                 Color(Obj.(name).V(i,4),1)=Veig(i,1);
-                div(Obj.(name).V(i,4),1:3)=Obj.(name).VN(i,1:3)*Veig(i,1)*scale;
+                % 'Div' is only for the current modal, not the combination
+                Div(Obj.(name).V(i,4),1:3)=Obj.(name).VN(i,1:3)*Veig(i,1)*scale*10;
             end
             figure
-            trisurf(Obj.(name).T(:,1:3),Obj.V(:,1)+div(:,1),Obj.V(:,2)+div(:,2),Obj.V(:,3)+div(:,3),Color);
+            trisurf(Obj.(name).T(:,1:3),Obj.V(:,1)+Div(:,1),Obj.V(:,2)+Div(:,2),Obj.V(:,3)+Div(:,3),Color,'FaceColor','Interp');
             colormap jet
             axis equal
             axis off

@@ -28,7 +28,6 @@ M.MD(4,6,3);
 M.MD(8,5,5);
 
 %% 5 Solving the Combination by FEA with Penalty Function Approach
-
 M.Comb(1);
 M.ShowSM;
 

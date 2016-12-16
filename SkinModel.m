@@ -29,20 +29,23 @@ classdef SkinModel < handle & dynamicprops
     
     properties
         % These properties are for the original model.
-        V;
-        T;
-        N;
-        VN;
+        V;                % Vertice cordinates of original model, each row corrosponding x,y,z (before segmentation)
+        T;                % Number of Vertices inside a triangle, each row is a triangle (before segmentation)
+        N;               % Normal vector for each triangle
+        VN;             % Vertice normal, which is calculated by the mean value of its one-disc triangles
         % Other segmentation properties are saved as dynamic properties.
-        N_Surf;
+        N_Surf;        % Number of surfaces after segmentation
         % Basic Properties for FEA combination
-        ELM; % Generated during segmentation
-        K;
-        C;
-        D;
-        S=1e17;
+        ELM;            % Generated during segmentation
+        K;                 % Stiffness matrix
+        C;                 %
+        D;                 % Deviation vectors, contains deviation for each vertex
+        S=1e17;        % Large value used for penalty function approach 
         % Skin Model parameters
-        SM;
+        SM;              % The generated skin model instance
+        % DP is a vector to save the dynamic property that added, and used
+        % when do the segmentation again, but not delete the whole model
+        DP;
     end
     
     methods
@@ -99,25 +102,28 @@ classdef SkinModel < handle & dynamicprops
             end
             
             % Calculate normal of vertices
-            Obj.V(:,4)=linspace(1,size(Obj.V,1),size(Obj.V,1));
-            Obj.T(:,4)=linspace(1,size(Obj.T,1),size(Obj.T,1));
-            Obj.N(:,4)=linspace(1,size(Obj.N,1),size(Obj.N,1));
-            Obj.VN=zeros(size(Obj.V,1),4);
+            Obj.V(:,4)=linspace(1,size(Obj.V,1),size(Obj.V,1)); % Need this number
+            Obj.VN=zeros(size(Obj.V,1),3);
             for i=1:size(Obj.V,1)
                 [r,~]=find(Obj.T(:,1:3)==Obj.V(i,4));
                 N_used=Obj.N(r,1:3);
                 VN_sum=[sum(N_used(:,1)),sum(N_used(:,2)),sum(N_used(:,3))];
-                VN=VN_sum/norm(VN_sum);
-                Obj.VN(i,:)=[VN,Obj.V(i,4)];
+                VN_i=VN_sum/norm(VN_sum);
+                Obj.VN(i,:)=VN_i;
             end
             Obj.V(:,4)=[];
-            Obj.T(:,4)=[];
-            Obj.N(:,4)=[];
-            Obj.VN(:,4)=[];
+            
         end
         
         % Segment model into 'N_Surf' patches, using first 'N_Mode' modes
         function Seg( Obj, N_Mode, N_Surf )
+            % Check and clean former segmentation result
+            if ~isempty(Obj.N_Surf)
+                for i=1:Obj.N_Surf
+                    delete(Obj.DP(i)); % Delet segmented surfaces, which is a dynamic property
+                end
+            end
+            Obj.DP=[];
             
             Obj.N_Surf=N_Surf;
             
@@ -157,11 +163,11 @@ classdef SkinModel < handle & dynamicprops
                 end
             end
             
-          %% Use EV to generate ELM, reduced the same calculation
+          % Use EV to generate ELM, reduced the same calculation
             Obj.ELM=EV;
             Obj.ELM=sort(Obj.ELM,2);
             Obj.ELM=unique(Obj.ELM,'rows');
-          %%
+            
             % Non-closed surface mesh will have edges on the boundary
             mark=[];
             for i=1:size(ET,1)
@@ -216,7 +222,7 @@ classdef SkinModel < handle & dynamicprops
             
             for i=1:N_Surf
                 name=['SF',num2str(i)];
-                Obj.addprop(name);
+                Obj.DP=[Obj.DP;Obj.addprop(name)];
                 Obj.(name).F=find(ID==i);
                 Obj.(name).T=Obj.T(Obj.(name).F,:);
                 V_used=unique(Obj.(name).T(:,1:3));
@@ -237,6 +243,68 @@ classdef SkinModel < handle & dynamicprops
             Obj.V(:,4)=[];
             Obj.T(:,4)=[];
             Obj.N(:,4)=[];
+            
+        end
+        
+        % If the segmentation reult is not good, pick one surface and segment again
+        function ReSeg(Obj, id_SubSurf, N_Mode, N_Surf )
+            
+            if N_Surf<2
+                error('Number of segmented surfaces should be large than one !')
+            end
+            
+            % The idea of ReSeg is to creat a new SkinModel, segment it,
+            % and copy the result back.
+            name=['SF',num2str(id_SubSurf)];
+            N_SM=SkinModel;
+            N_SM.V=Obj.(name).V;
+            N_SM.T=Obj.(name).T(:,1:3);
+            N_SM.N=Obj.(name).N(:,1:3);
+            N_SM.VN=Obj.(name).VN(:,1:3);
+            
+            for i=1:size(N_SM.T,1)
+                for j=1:3
+                    N_SM.T(i,j)=find(N_SM.V(:,4)==N_SM.T(i,j));
+                end
+            end
+            N_SM.V(:,4)=[];
+            
+            N_SM.Seg(N_Mode, N_Surf);
+            
+            % Regenerate the index according to the global index
+            N_SM.V(:,4)=Obj.(name).V(:,4);
+            N_SM.T(:,4)=Obj.(name).T(:,4);
+            N_SM.N(:,4)=Obj.(name).N(:,4);
+            N_SM.VN(:,4)=Obj.(name).VN(:,4);
+            for i=1:N_Surf
+                name2=['SF',num2str(i)];
+                for j=1:size(N_SM.(name2).F,1)
+                    N_SM.(name2).F(j)=Obj.(name).T(N_SM.(name2).F(j),4);
+                end
+                for j=1:size(N_SM.(name2).T,1)
+                    N_SM.(name2).T(j,4)=N_SM.T(N_SM.(name2).T(j,4),4);
+                    for k=1:3
+                        N_SM.(name2).T(j,k)=N_SM.V(N_SM.(name2).T(j,k),4);
+                    end
+                end
+                N_SM.(name2).N(:,4)=N_SM.(name2).T(:,4);
+                for j=1:size(N_SM.(name2).V,1)
+                    N_SM.(name2).V(j,4)=N_SM.V(N_SM.(name2).V(j,4),4);
+                end
+                N_SM.(name2).VN(:,4)=N_SM.(name2).V(:,4);
+            end
+            
+            % Put the segmentation result to original Skin Model
+            i=1;
+            name2=['SF',num2str(i)];
+            Obj.(name)=N_SM.(name2);
+            for i=2:N_Surf
+                name=['SF',num2str(Obj.N_Surf+i-1)];
+                name2=['SF',num2str(i)];
+                Obj.DP=[Obj.DP;Obj.addprop(name)];
+                Obj.(name)=N_SM.(name2);
+            end
+            Obj.N_Surf=Obj.N_Surf+N_Surf-1;
             
         end
         
@@ -400,7 +468,7 @@ classdef SkinModel < handle & dynamicprops
                 W(i,1)=norm(Obj.(name).V(EV(i,1),1:3)-Obj.(name).V(EV(i,2),1:3));
             end
             % Scaled the weight to [0,3], thus the calculation not influenced by the size of the model.
-            W=3*W/max(W);
+            W=4*W/max(W);
             % 'exp' reduced the problem on the boundary, and the result is better
             W=exp(-W);
             n_v=size(Obj.(name).V,1);

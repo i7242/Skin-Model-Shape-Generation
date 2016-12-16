@@ -11,7 +11,7 @@ M.Read('nominal_binary.stl');
 M.ShowORG;
 
 %% 3 Segment model into N surfaces
-M.Seg(8,8);
+M.Seg(8,7);
 M.ShowSEG;
 
 %% *3 or reload the model after segmentation

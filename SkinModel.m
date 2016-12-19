@@ -29,20 +29,39 @@ classdef SkinModel < handle & dynamicprops
     
     properties
         % These properties are for the original model.
-        V;                % Vertice cordinates of original model, each row corrosponding x,y,z (before segmentation)
-        T;                % Number of Vertices inside a triangle, each row is a triangle (before segmentation)
-        N;               % Normal vector for each triangle
-        VN;             % Vertice normal, which is calculated by the mean value of its one-disc triangles
+        % Vertice cordinates of original model, each row corrosponding x,y,z (before segmentation)
+        V;
+        % Number of Vertices inside a triangle, each row is a triangle (before segmentation)
+        T;
         % Other segmentation properties are saved as dynamic properties.
-        N_Surf;        % Number of surfaces after segmentation
+        % Number of surfaces after segmentation
+        N_Surf;
+
+        % Table of parameters for deviation simulation
+        DivTable={};
+    end
+    
+    properties(Hidden)
+        % Normal vector for each triangle
+        N;
+        % Vertice normal, which is calculated by the mean value of its one-disc triangles
+        VN;
+        
         % Basic Properties for FEA combination
-        ELM;            % Generated during segmentation
-        K;                 % Stiffness matrix
-        C;                 %
-        D;                 % Deviation vectors, contains deviation for each vertex
-        S=1e17;        % Large value used for penalty function approach 
+        % Generated during segmentation
+        ELM;
+        % Stiffness matrix
+        K;
+        C;
+        % Deviation vectors, contains deviation for each vertex
+        D;
+        % Large value used for penalty function approach
+        S=1e17;
+        
         % Skin Model parameters
-        SM;              % The generated skin model instance
+        % The generated skin model instance
+        SM;
+        
         % DP is a vector to save the dynamic property that added, and used
         % when do the segmentation again, but not delete the whole model
         DP;
@@ -493,18 +512,88 @@ classdef SkinModel < handle & dynamicprops
             Obj.(name).D=Obj.(name).D+Veig*scale; % This is to combin with other deviaitons
             
             % Show the mode simulated, and deviation is amplified 10 times.
-            Color=zeros(size(Obj.V,1),1);
-            Div=zeros(size(Obj.V,1),3);
-            for i=1:size(Obj.(name).V,1)
-                Color(Obj.(name).V(i,4),1)=Veig(i,1);
-                % 'Div' is only for the current modal, not the combination
-                Div(Obj.(name).V(i,4),1:3)=Obj.(name).VN(i,1:3)*Veig(i,1)*scale*10;
+%             Color=zeros(size(Obj.V,1),1);
+%             Div=zeros(size(Obj.V,1),3);
+%             for i=1:size(Obj.(name).V,1)
+%                 Color(Obj.(name).V(i,4),1)=Veig(i,1);
+%                 % 'Div' is only for the current modal, not the combination
+%                 Div(Obj.(name).V(i,4),1:3)=Obj.(name).VN(i,1:3)*Veig(i,1)*scale*10;
+%             end
+%             figure
+%             trisurf(Obj.(name).T(:,1:3),Obj.V(:,1)+Div(:,1),Obj.V(:,2)+Div(:,2),Obj.V(:,3)+Div(:,3),Color,'FaceColor','Interp');
+%             colormap jet
+%             axis equal
+%             axis off
+        end
+        
+        % Generate DivTable for deviation simulation
+        function GetDivTable(Obj)
+            if isempty(Obj.N_Surf)
+                error('Please segment the surface first, or set the number of surfaces to be one!')
             end
-            figure
-            trisurf(Obj.(name).T(:,1:3),Obj.V(:,1)+Div(:,1),Obj.V(:,2)+Div(:,2),Obj.V(:,3)+Div(:,3),Color,'FaceColor','Interp');
-            colormap jet
-            axis equal
-            axis off
+            Obj.DivTable=cell(Obj.N_Surf+1,4);
+            % Surface: Number of corresponding surface
+            % Translation: [x,y,z,mean,deviation]
+            %       1>if [x,y,z] it is [0,0,0], generate random
+            %           direction based on mean and deviation
+            %       2>if vector is empty, skip
+            % Rotation: [x,y,z,mean,deviation], similar to translation
+            % Modal: [m1,m2,m3...,mean,deviaiton]
+            %       1>m1,m2,m3... are the modes used
+            %       2>their weights are generated randomly based on mean
+            %           and deviation
+            Obj.DivTable(1,:)={'Surface','Translation','Rotation','Modal'};
+            Obj.DivTable(2,:)={'No.','[x,y,z,mean,dev]','[x,y,z,mean,dev]','[m1,m2,m3...,mean,dev]'};
+            for i=1:Obj.N_Surf
+                Obj.DivTable(i+2,1)={i};
+            end
+        end
+        
+        % Simulation based on parameters in DivTalbe
+        function DivSim(Obj)
+            if isempty(Obj.DivTable)
+                error('Please generate DivTable, and specify simulation parameters!')
+            end
+            
+            for i=1:Obj.N_Surf
+                % Translation
+                if ~isempty(Obj.DivTable{i+2,2})    % if not empty, simulate deviation
+                    if Obj.DivTable{i+2,2}(1:3)==[0,0,0]    % if all zero, normal distribution in all direction
+                        div=random('Normal',Obj.DivTable{i+2,2}(4),Obj.DivTable{i+2,2}(5),[1,3]);
+                        Obj.TR(i,div);
+                    else
+                        dir=Obj.DivTable{i+2,2}(1:3);   % Direction specified for translation
+                        dir=dir/norm(dir);
+                        div=random('Normal',Obj.DivTable{i+2,2}(4),Obj.DivTable{i+2,2}(5));
+                        Obj.TR(i,dir*div);
+                    end
+                end
+                % Rotation
+                if ~isempty(Obj.DivTable{i+2,3})    % if not empty, simulate rotation
+                    if Obj.DivTable{i+2,3}(1:3)==[0,0,0]    % if all zero, normal distribution in all direction
+                        div=random('Normal',Obj.DivTable{i+2,3}(4),Obj.DivTable{i+2,3}(5),[1,3]);
+                        Obj.RO(i,div);
+                    else
+                        dir=Obj.DivTable{i+2,3}(1:3);   % Direction of axis specified for rotation
+                        dir=dir/norm(dir);
+                        div=random('Normal',Obj.DivTable{i+2,3}(4),Obj.DivTable{i+2,3}(5));
+                        Obj.RO(i,dir*div);
+                    end
+                end
+                % Modal
+                if ~isempty(Obj.DivTable{i+2,4})    % if not empty, calculate modes
+                    if size(Obj.DivTable{i+2,4},2)<=2   % Number of parameters should be bigger than 2
+                        error('Not enough parameters for modal simulation, please check!')
+                    else
+                        num_m=size(Obj.DivTable{i+2,4},2)-2;    %Number of modes
+                        div=random('Normal',Obj.DivTable{i+2,4}(num_m+1),Obj.DivTable{i+2,4}(num_m+2),[1,num_m]);
+                        for j=1:num_m
+                            Obj.MD(i,Obj.DivTable{i+2,4}(j),div(j));     %Combine modal deviaiton
+                        end
+                    end
+                end
+            end
+            
         end
         
         % Reset the deviation value, to simulate new ones
@@ -516,7 +605,7 @@ classdef SkinModel < handle & dynamicprops
         end
         
         % Plot original model
-        function ShowORG( Obj )
+        function ShowOrg( Obj )
             figure
             map=trisurf(Obj.T,Obj.V(:,1),Obj.V(:,2),Obj.V(:,3));
             set(map,'FaceColor',[1,1,1]);
@@ -525,15 +614,18 @@ classdef SkinModel < handle & dynamicprops
         end
         
         % Plot segmented model
-        function ShowSEG( Obj , id )
+        function ShowSeg( Obj , id )
             % If want show all features, no input
             % If want to show certain surface, input its id (number)
             if nargin==1
                 figure
                 for i=1:Obj.N_Surf
                     name=['SF',num2str(i)];
+                    center=mean(Obj.(name).V(:,1:3));
                     map=trisurf(Obj.(name).T(:,1:3),Obj.V(:,1),Obj.V(:,2),Obj.V(:,3));
-                    set(map,'FaceColor',rand(1,3));
+                    set(map,'FaceColor',rand(1,3),'EdgeColor','non');
+                    alpha(0.6);
+                    text(center(1),center(2),center(3),num2str(i),'Color','red','FontSize',25);
                     hold on
                 end
             elseif nargin==2

@@ -4,25 +4,37 @@ classdef SkinModel < handle & dynamicprops
 %   Following the sequance of the methods:
 %   1. Read
 %   2. Seg
-%   3. Sim deviation
-%   4. Comb
-%   5. Export
+%   3. GetDivTable
+%   4. DivSim
+%   5. Comb
+%   6. Export
+%   7. ResetD
 %--------------------------------------------------------------------------
 % Read before using:
 %   1. If it's the first time simulate for a model, use the tyical process.
 %   2. Segmentation works well only for:
 %       1> Part with sharp and acute face connection
 %       2> Size of each feature shold be similar
-%   3. Once segmentation are done and the result is satisfying, save the
+%   3. If segmentation result is not good, use 'ReSeg' to segment a
+%       specific surface, to see if the result could be better (maybe not)
+%   4. Once segmentation are done and the result is satisfying, save the
 %      instance of the model, thus the numbering of surfaces after seg are
 %      fixed, and don't need to seg it again the next time.
-%   4. Specify manufacturing deviations by methods:
+%   5. Specify manufacturing deviations by methods:
+%       1>Using DivTable
+%       2>Using TR,RO,MD directly
+%   5.1 Using DivTable
+%       1> GetDivTable at first (method)
+%       2> Specifying simulation parameters in the table
+%       3> Use 'DivSim' to simulate deviations randomly
+%   5.2 Using TR,RO,MD
 %       1> TR--translation
-%       2> RO--rotation
-%       3> MD--generate mode and scaled
-%   5. All deviations are considered as displacement boundary conditions,
-%      and solving by FEA & Penalty Function Approach.
-%   6. 'ResetD'--To generate a new skin model, use this method to set
+%            RO--rotation
+%            MD--generate mode and scaled
+%       2> Specify surface and deviration directly
+%   6. 'Comb'--All deviations are considered as displacement boundary
+%      conditions,and solving by FEA & Penalty Function Approach.
+%   7. 'ResetD'--To generate a new skin model, use this method to set
 %      manufacturing deviation to zero. Not necessary to reload model.
 %--------------------------------------------------------------------------
 

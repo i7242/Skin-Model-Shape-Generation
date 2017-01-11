@@ -339,6 +339,21 @@ classdef SkinModel < handle & dynamicprops
             
         end
         
+        % Union two segmentations at one time
+        function UnionSeg(Obj, id_Seg_1, id_Seg_2)
+            name_1=['SF',num2str(id_Seg_1)];
+            name_2=['SF',num2str(id_Seg_2)];
+            Obj.(name_1).F=[Obj.(name_1).F;Obj.(name_2).F];
+            Obj.(name_1).T=[Obj.(name_1).T;Obj.(name_2).T];
+            Obj.(name_1).V=[Obj.(name_1).V;Obj.(name_2).V];
+            [Obj.(name_1).V, ~, ~] =  unique(Obj.(name_1).V, 'rows');
+            Obj.(name_1).N=[Obj.(name_1).N;Obj.(name_2).N];
+            Obj.(name_1).VN=[Obj.(name_1).VN;Obj.(name_2).VN];
+            [Obj.(name_1).VN, ~, ~] =  unique(Obj.(name_1).VN, 'rows');
+            Obj.(name_1).D=[Obj.(name_1).D;Obj.(name_2).D];
+            delete(Obj.DP(id_Seg_2)); % Delet segmented surfaces, which is a dynamic property
+        end
+        
         % Combination of deviations and nominal model
         function Comb( Obj, Scale )
             
@@ -498,7 +513,7 @@ classdef SkinModel < handle & dynamicprops
                 % Laplacian
                 W(i,1)=norm(Obj.(name).V(EV(i,1),1:3)-Obj.(name).V(EV(i,2),1:3));
             end
-            % Scaled the weight to [0,3], thus the calculation not influenced by the size of the model.
+            % Scaled the weight to [0,4], thus the calculation not influenced by the size of the model.
             W=4*W/max(W);
             % 'exp' reduced the problem on the boundary, and the result is better
             W=exp(-W);
@@ -637,13 +652,31 @@ classdef SkinModel < handle & dynamicprops
                     map=trisurf(Obj.(name).T(:,1:3),Obj.V(:,1),Obj.V(:,2),Obj.V(:,3));
                     set(map,'FaceColor',rand(1,3),'EdgeColor','non');
                     alpha(0.6);
-                    text(center(1),center(2),center(3),num2str(i),'Color','red','FontSize',25);
                     hold on
                 end
             elseif nargin==2
                 name=['SF',num2str(id)];
                 map=trisurf(Obj.(name).T(:,1:3),Obj.V(:,1),Obj.V(:,2),Obj.V(:,3));
                 set(map,'FaceColor',rand(1,3));
+                hold on
+            end
+            axis equal
+            axis off
+        end
+        
+        % Plot the numbering of segmented model
+        function ShowSegNum(Obj, id)
+            if nargin==1
+                for i=1:Obj.N_Surf
+                    name=['SF',num2str(i)];
+                    center=mean(Obj.(name).V(:,1:3));
+                    text(center(1),center(2),center(3),num2str(i),'Color','red','FontSize',25);
+                    hold on
+                end
+            elseif nargin==2
+                name=['SF',num2str(id)];
+                center=mean(Obj.(name).V(:,1:3));
+                text(center(1),center(2),center(3),num2str(id),'Color','red','FontSize',25);
                 hold on
             end
             axis equal

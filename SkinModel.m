@@ -165,6 +165,10 @@ classdef SkinModel < handle & dynamicprops
                 n2=Obj.T(i,2);
                 n3=Obj.T(i,3);
                 
+                % We consider the input mesh model is "closed" !
+                % In this search of edge, one edge is shared by two
+                % triangles, so it is 'symetric' but different in non-zero
+                % values.
                 if EG(n1,n2)==0
                     EG(n1,n2)=i;
                 else
@@ -182,10 +186,11 @@ classdef SkinModel < handle & dynamicprops
                 else
                     EG(n1,n3)=i;
                 end
+                
             end
             EV=[];
             ET=[];
-            for i=1:size(EG,1)-1
+            for i=1:size(EG,1)
                 for j=i:size(EG,1)
                     if EG(i,j)~=0
                         EV=[EV;i,j];
@@ -199,16 +204,22 @@ classdef SkinModel < handle & dynamicprops
             Obj.ELM=sort(Obj.ELM,2);
             Obj.ELM=unique(Obj.ELM,'rows');
             
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
+            % This is cancled, because non-closed surface coudn't do
+            % combination with FEA.
+            % But it may used if we just want to segment some non-closed
+            % surfaces.
             % Non-closed surface mesh will have edges on the boundary
-            mark=[];
-            for i=1:size(ET,1)
-                if (ET(i,1)==0)||(ET(i,2)==0)
-                    mark=[mark;i];
-                end
-            end
-            EV(mark,:)=[];
-            ET(mark,:)=[];
-            
+%             mark=[];
+%             for i=1:size(ET,1)
+%                 if (ET(i,1)==0)||(ET(i,2)==0)
+%                     mark=[mark;i];
+%                 end
+%             end
+%             EV(mark,:)=[];
+%             ET(mark,:)=[];
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
+
             % Calculation of the modes
             n_e=size(ET,1);
             DIF=zeros(n_e,1);
@@ -477,27 +488,26 @@ classdef SkinModel < handle & dynamicprops
                 n2=find(Obj.(name).V(:,4)==Obj.(name).T(i,2));
                 n3=find(Obj.(name).V(:,4)==Obj.(name).T(i,3));
                 
-                if EG(n1,n2)==0
-                    EG(n1,n2)=i;
-                else
-                    EG(n2,n1)=i;
+                % Here is different from the edge calculation in "Seg"
+                % Here the surface is non-closed, so we need to avoid
+                % missing any edge.
+                % If any edge is ommited, there may be error from "eigs"!
+                if EG(min(n1,n2),max(n1,n2))==0
+                    EG(min(n1,n2),max(n1,n2))=i;
                 end
                 
-                if EG(n2,n3)==0
-                    EG(n2,n3)=i;
-                else
-                    EG(n3,n2)=i;
+                if EG(min(n2,n3),max(n2,n3))==0
+                    EG(min(n2,n3),max(n2,n3))=i;
                 end
                 
-                if EG(n3,n1)==0
-                    EG(n3,n1)=i;
-                else
-                    EG(n1,n3)=i;
+                if EG(min(n3,n1),max(n3,n1))==0
+                    EG(min(n3,n1),max(n3,n1))=i;
                 end
+                
             end
             EV=[];
             ET=[];
-            for i=1:size(EG,1)-1
+            for i=1:size(EG,1)
                 for j=i:size(EG,1)
                     if EG(i,j)~=0
                         EV=[EV;i,j];
@@ -513,8 +523,9 @@ classdef SkinModel < handle & dynamicprops
                 % Laplacian
                 W(i,1)=norm(Obj.(name).V(EV(i,1),1:3)-Obj.(name).V(EV(i,2),1:3));
             end
-            % Scaled the weight to [0,4], thus the calculation not influenced by the size of the model.
+            % for the weight, need to modify and choose a better one
             W=4*W/max(W);
+%             W=(W-min(W))/(max(W)-min(W));
             % 'exp' reduced the problem on the boundary, and the result is better
             W=exp(-W);
             n_v=size(Obj.(name).V,1);
@@ -536,8 +547,10 @@ classdef SkinModel < handle & dynamicprops
             m=max(abs(Veig));
             Veig=Veig/m*0.5;
             Obj.(name).D=zeros(size(Obj.(name).V,1),1);
-            Obj.(name).D=Obj.(name).D+Veig*scale; % This is to combin with other deviaitons
+            % This is to combin with other deviaitons
+            Obj.(name).D=Obj.(name).D+Veig*scale; 
             
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
             % Show the mode simulated, and deviation is amplified 10 times.
 %             Color=zeros(size(Obj.V,1),1);
 %             Div=zeros(size(Obj.V,1),3);
@@ -551,6 +564,8 @@ classdef SkinModel < handle & dynamicprops
 %             colormap jet
 %             axis equal
 %             axis off
+% - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
+
         end
         
         % Generate DivTable for deviation simulation

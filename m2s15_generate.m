@@ -7,7 +7,7 @@ clc
 M=SkinModel;
 
 %% 2 Read STL model
-M.Read('prt0001.stl');
+M.Read('916_b.stl');
 M.ShowOrg;
 
 %% 3 Segment model into N surfaces

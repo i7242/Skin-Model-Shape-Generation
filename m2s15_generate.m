@@ -7,11 +7,11 @@ clc
 M=SkinModel;
 
 %% 2 Read STL model
-M.Read('916_b.stl');
+M.Read('angletest_finemesh_binary.stl');
 M.ShowOrg;
 
 %% 3 Segment model into N surfaces
-M.Seg(6,6);
+M.Seg(5,5);
 M.ShowSeg;
 
 %% 4 Get the Deviation Table 'DivTable' for simulation

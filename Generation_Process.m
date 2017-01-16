@@ -31,6 +31,9 @@ M.ShowSM;
 %% 8 Use 'ResetD' to set deviation to zero, not delet the model and generate new one
 M.ResetD;
 
+%% 9 After generated skin model shape, export it to a FeatureGroup in GeoSpelling
+M.Export('Name');
+
 %% Save M, to use in next time
 
 % save M M

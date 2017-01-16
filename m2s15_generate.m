@@ -7,11 +7,11 @@ clc
 M=SkinModel;
 
 %% 2 Read STL model
-M.Read('angletest_finemesh_binary.stl');
+M.Read('pb.stl');
 M.ShowOrg;
 
 %% 3 Segment model into N surfaces
-M.Seg(5,5);
+M.Seg(6,6);
 M.ShowSeg;
 
 %% 4 Get the Deviation Table 'DivTable' for simulation
@@ -30,6 +30,9 @@ M.ShowSM;
 
 %% 8 Use 'ResetD' to set deviation to zero, not delet the model and generate new one
 M.ResetD;
+
+%% 9 After generated skin model shape, export it to a FeatureGroup in GeoSpelling
+M.Export('Name');
 
 %% Save M, to use in next time
 

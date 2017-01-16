@@ -707,6 +707,42 @@ classdef SkinModel < handle & dynamicprops
             axis off
         end
         
+        % Export generated skin model shape as a feature group of surface
+        % mesh
+        function Export(Obj, Name)
+            
+            FG=FeatureGroup(Name);
+            
+            for i=1:Obj.N_Surf
+                Name2=[Name,num2str(i)];
+                Name3=['SF',num2str(i)];
+                
+                FG.Member{i}=SurfaceMesh(Name2);
+                FG.Member{i}.Triangle=Obj.(Name3).T(:,1:3);
+                FG.Member{i}.Vertex=Obj.(Name3).V;
+                for j=1:size(FG.Member{i}.Vertex,1);
+                    FG.Member{i}.Vertex(j,1:3)=Obj.SM.V(FG.Member{i}.Vertex(j,4),1:3);
+                end
+                
+                % make the index of vertex in triangle to local index
+                FG.Member{i}.V2L;
+                FG.Member{i}.Vertex(:,4)=[];
+                
+                % Re-calculate the normal of triangles
+                FG.Member{i}.CalTriNormal;
+                
+                % Re-calculate the normal of vertex
+                FG.Member{i}.CalVtxNormal;
+                
+                % Calculate the center and normal of feature group
+                FG.GetCN;
+                
+                assignin( 'caller' , FG.Name , FG )
+                
+            end
+            
+        end
+        
     end
     
 end

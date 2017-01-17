@@ -32,7 +32,7 @@ M.ShowSM;
 M.ResetD;
 
 %% 9 After generated skin model shape, export it to a FeatureGroup in GeoSpelling
-M.Export('Name');
+M.Export('PB');
 
 %% Save M, to use in next time
 

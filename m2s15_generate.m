@@ -7,11 +7,11 @@ clc
 M=SkinModel;
 
 %% 2 Read STL model
-M.Read('pb.stl');
+M.Read('asm_1_d.stl');
 M.ShowOrg;
 
 %% 3 Segment model into N surfaces
-M.Seg(6,6);
+M.Seg(9,9);
 M.ShowSeg;
 
 %% 4 Get the Deviation Table 'DivTable' for simulation
@@ -32,7 +32,7 @@ M.ShowSM;
 M.ResetD;
 
 %% 9 After generated skin model shape, export it to a FeatureGroup in GeoSpelling
-M.Export('PB');
+M.Export('ASM_1_F');
 
 %% Save M, to use in next time
 

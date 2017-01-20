@@ -7,11 +7,11 @@ clc
 M=SkinModel;
 
 %% 2 Read STL model
-M.Read('asm_1_d.stl');
+M.Read('tool_hm_2b.stl');
 M.ShowOrg;
 
 %% 3 Segment model into N surfaces
-M.Seg(9,9);
+M.Seg(50,53);
 M.ShowSeg;
 
 %% 4 Get the Deviation Table 'DivTable' for simulation
@@ -25,7 +25,7 @@ M.DivTable=Table;
 M.DivSim;
 
 %% 7 Solving the Combination by FEA with Penalty Function Approach
-M.Comb(1);
+M.Comb(10);
 M.ShowSM;
 
 %% 8 Use 'ResetD' to set deviation to zero, not delet the model and generate new one

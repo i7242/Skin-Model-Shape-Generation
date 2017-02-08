@@ -205,26 +205,23 @@ classdef SkinModel < handle & dynamicprops
             Obj.ELM=unique(Obj.ELM,'rows');
             
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
-            % This is cancled, because non-closed surface coudn't do
-            % combination with FEA.
-            % But it may used if we just want to segment some non-closed
-            % surfaces.
+            % This is used for ReSeg method.
             % Non-closed surface mesh will have edges on the boundary
-%             mark=[];
-%             for i=1:size(ET,1)
-%                 if (ET(i,1)==0)||(ET(i,2)==0)
-%                     mark=[mark;i];
-%                 end
-%             end
-%             EV(mark,:)=[];
-%             ET(mark,:)=[];
+            mark=[];
+            for i=1:size(ET,1)
+                if (ET(i,1)==0)||(ET(i,2)==0)
+                    mark=[mark;i];
+                end
+            end
+            EV(mark,:)=[];
+            ET(mark,:)=[];
 % - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - %
 
             % Calculation of the modes
             n_e=size(ET,1);
             DIF=zeros(n_e,1);
             for i=1:n_e
-                DIF(i,1)=(norm(Obj.N(ET(i,1),1:3)-Obj.N(ET(i,2),1:3)))^2;% This is important part, and need to improve !
+                DIF(i,1)=(norm(Obj.N(ET(i,1),1:3)-Obj.N(ET(i,2),1:3)))^2; % This is important part, and need to improve !
             end
             if mean(DIF)>0.001
                 DIF=DIF/mean(DIF);

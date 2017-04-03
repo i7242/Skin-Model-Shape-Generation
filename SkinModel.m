@@ -740,6 +740,34 @@ classdef SkinModel < handle & dynamicprops
             
         end
         
+        % Export to STL file
+        function ExportSTL(Obj, FileName)
+            % FileName should be "XXXX.stl"
+            
+            % Create file, write basic information
+            fid=fopen(FileName,'w');
+            fprintf(fid,'%-80s',FileName);
+            num_T=size(Obj.T,1);
+            fwrite(fid,num_T,'uint32');
+            
+            for i=1:num_T
+                e1=Obj.SM.V(Obj.T(i,2),:)-Obj.SM.V(Obj.T(i,1),:);
+                e2=Obj.SM.V(Obj.T(i,3),:)-Obj.SM.V(Obj.T(i,2),:);
+                N_T=cross(e1,e2);
+                N_T=N_T/norm(N_T);
+                
+                fwrite(fid,N_T,'float32');
+                fwrite(fid,Obj.SM.V(Obj.T(i,1),1:3),'float32');
+                fwrite(fid,Obj.SM.V(Obj.T(i,2),1:3),'float32');
+                fwrite(fid,Obj.SM.V(Obj.T(i,3),1:3),'float32');
+                fwrite(fid,0.5,'uint16');
+            end
+            
+            % Close the file
+            fclose(fid);
+            
+        end
+        
     end
     
 end

@@ -25,7 +25,7 @@ tool.DivTable=Table;
 tool.DivSim;
 
 %% 7 Solving the Combination by FEA with Penalty Function Approach
-tool.Comb(15);
+tool.Comb(10);
 tool.ShowSM;
 
 %% 8 Use 'ResetD' to set deviation to zero, not delet the model and generate new one

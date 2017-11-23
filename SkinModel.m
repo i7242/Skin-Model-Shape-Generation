@@ -362,6 +362,24 @@ classdef SkinModel < handle & dynamicprops
             delete(Obj.DP(id_Seg_2)); % Delet segmented surfaces, which is a dynamic property
         end
         
+        % Union two segmentations at one time
+        function UnionSeg2(Obj, id_Seg_1, id_Seg_2)
+            name_1=['SF',num2str(id_Seg_1)];
+            name_2=['SF',num2str(id_Seg_2)];
+            Obj.(name_1).F=[Obj.(name_1).F;Obj.(name_2).F];
+            Obj.(name_1).T=[Obj.(name_1).T;Obj.(name_2).T];
+            Obj.(name_1).V=[Obj.(name_1).V;Obj.(name_2).V];
+            Obj.(name_1).N=[Obj.(name_1).N;Obj.(name_2).N];
+            
+            [Obj.(name_1).V, dx, ~] =  unique(Obj.(name_1).V, 'rows');
+            Obj.(name_1).VN=[Obj.(name_1).VN;Obj.(name_2).VN];
+            Obj.(name_1).VN=Obj.(name_1).VN(dx,:);
+            Obj.(name_1).D=[Obj.(name_1).D;Obj.(name_2).D];
+            Obj.(name_1).D=Obj.(name_1).D(dx,:);
+            
+            delete(Obj.DP(id_Seg_2)); % Delet segmented surfaces, which is a dynamic property
+        end
+        
         % Combination of deviations and nominal model
         function Comb( Obj, Scale )
             
@@ -543,7 +561,7 @@ classdef SkinModel < handle & dynamicprops
             % Normalize and scale the mode
             m=max(abs(Veig));
             Veig=Veig/m*0.5;
-            Obj.(name).D=zeros(size(Obj.(name).V,1),1);
+%             Obj.(name).D=zeros(size(Obj.(name).V,1),1);
             % This is to combin with other deviaitons
             Obj.(name).D=Obj.(name).D+Veig*scale; 
             

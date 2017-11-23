@@ -7,32 +7,32 @@ clc
 M=SkinModel;
 
 %% 2 Read STL model
-M.Read('b_b.stl');
+M.Read('Fine_A.stl');
 M.ShowOrg;
 
 %% 3 Segment model into N surfaces
-M.Seg(1,1);
+M.Seg(8,8);
 M.ShowSeg;
 
 %% 4 Get the Deviation Table 'DivTable' for simulation
 M.GetDivTable;
 
 %% 5 Edit parameters in 'DivTable'
-load Table
+load Table_A
 M.DivTable=Table;
 
 %% 6 Simulate for each surfaces
 M.DivSim;
 
 %% 7 Solving the Combination by FEA with Penalty Function Approach
-M.Comb(1);
+M.Comb(0.01);
 M.ShowSM;
 
 %% 8 Use 'ResetD' to set deviation to zero, not delet the model and generate new one
 M.ResetD;
 
 %% 9 After generated skin model shape, export it to a FeatureGroup in GeoSpelling
-M.Export('SF_B');
+M.Export('Fine_A');
 
 %% Save M, to use in next time
 

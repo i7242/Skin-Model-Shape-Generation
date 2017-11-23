@@ -7,7 +7,7 @@ clc
 tool=SkinModel;
 
 %% 2 Read STL model
-tool.Read('tool_hm_3b.stl');
+tool.Read('tool_Inscape_3.stl');
 tool.ShowOrg;
 
 %% 3 Segment model into N surfaces

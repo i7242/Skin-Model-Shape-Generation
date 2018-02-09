@@ -1,15 +1,14 @@
 %% *Skin Model Generation Process*
-% The generation contains several steps, which includes:
-% 
-% # Creat skin model instance.
-% # Read the model. The model should be in STL formate.
-% # Segment the nominal model into several surfaces.
-% # Simulate manufacturing deviations on each surface.
-% # Combine deviations with nominal model by FEA.
-% # Export the skin model as STL file.
 %
-% Besides the basic simulation processes, additional methods were developed
-% to facilate the simulation. All of these will be introduced in the following.
+%% Acknowledgement
+% This work was conducted at Institut de M¨¦canique et d'Ing¨¦nierie (I2M),
+% Universit¨¦ de Bordeaux.
+% Please cite the following article when using:
+%
+% Xingyu Yan, Alex Ballu. Generation of consistent skin model shape based on FEA method. Int J Adv Manuf Technol 2017. doi:10.1007/s00170-017-0177-5.
+%
+% <http://link.springer.com/10.1007/s00170-017-0177-5>
+%
 
 %% 1 Creat Instance
 % To creat the instance of skin model, using method as below.
@@ -186,7 +185,7 @@ M.DivSim;
 % The combination of the deviation value and nominal model are based on
 % FEA. More details can be found in:
 %
-% X. Yan, A. Ballu, "Generation of consistent skin model shape based on FEA method", The International Journal of Advanced Manufacturing Technology
+% Xingyu Yan, Alex Ballu. Generation of consistent skin model shape based on FEA method. Int J Adv Manuf Technol 2017. doi:10.1007/s00170-017-0177-5.
 %
 % <http://link.springer.com/10.1007/s00170-017-0177-5>
 %

@@ -12,7 +12,7 @@ Please cite the following article when using:
 To creat the instance of skin model, using method as below.
 The instance "M" contains no data initially.
 
-> M=SkinModel;
+`M=SkinModel;`
 
 ## 2 Read STL Model
 The STL file should be puted in current work folder, or sub-folders.

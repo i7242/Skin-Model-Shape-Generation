@@ -8,32 +8,28 @@ Please cite the following article when using:
 <http://link.springer.com/10.1007/s00170-017-0177-5>
 
 
-%% 1 Creat Instance
-% To creat the instance of skin model, using method as below.
-% The instance "M" contains no data initially.
-M=SkinModel;
+## 1 Creat Instance
+To creat the instance of skin model, using method as below.
+The instance "M" contains no data initially.
 
-%% 2 Read STL Model
-% The STL file should be puted in current work folder, or sub-folders.
-% The name is a string ending with ".stl".
-% The format should be binary.
-%
-% Using "Read" method to read the STL file, and put data into "M".
-M.Read('Test_Nominal_Model.stl');
+> M=SkinModel;
 
-%%
-% There are two properties inside the instance "M":
-%
-% # "V": n*3 vertices matrix. "n" is the number of vertices, 3 column corresponding
-% to x, y, z coordinates
-% # "T": m*3 triangle matrix. "m" is the number of triangles, 3 column
-% corresponding to the row number of 3 vertices in "V" matrix.
-%
+## 2 Read STL Model
+The STL file should be puted in current work folder, or sub-folders.
+The name is a string ending with ".stl".
+The format should be binary.
+Using "Read" method to read the STL file, and put data into "M".
 
-%%
-% Using "ShowOrg" to plot the original model, which is usually considered as
-% nominal model.
-M.ShowOrg;
+> M.Read('Test_Nominal_Model.stl');
+
+There are two properties inside the instance "M":
+
+1. "V": n*3 vertices matrix. "n" is the number of vertices, 3 column corresponding to x, y, z coordinates.
+2. "T": m*3 triangle matrix. "m" is the number of triangles, 3 column corresponding to the row number of 3 vertices in "V" matrix.
+
+Using "ShowOrg" to plot the original model, which is usually considered as nominal model.
+
+> M.ShowOrg;
 
 %% 3 Segment Model into "K" Surfaces
 % The segmentation uses spectral based method:

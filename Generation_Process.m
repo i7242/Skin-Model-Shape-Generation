@@ -7,7 +7,7 @@ clc
 M=SkinModel;
 
 %% 2 Read STL model
-M.Read('nominal_binary.stl');
+M.Read('Test_Nominal_Model.stl');
 M.ShowOrg;
 
 %% 3 Segment model into N surfaces
@@ -28,31 +28,7 @@ M.DivSim;
 M.Comb(1);
 M.ShowSM;
 
-%% 8 Use 'ResetD' to set deviation to zero, not delet the model and generate new one
-M.ResetD;
-
-%% 9 After generated skin model shape, export it to a FeatureGroup in GeoSpelling
-M.Export('ASM_L_PB');
-
-%% Save M, to use in next time
-
-% save M M
-
-%% Reload the model used before
-% This is because each time the numbering of segmentation result is
-% changing. To specify the surface I already konw, a model is saved in
-% advance and reload here.
-% Also, after Comb, the stiffness matrix K is already calculated. Reload
-% will save time for calculation
-
-% load M;
-
-%% Simulate deviations for each surfaces
-% It is possible to specify deviation for certain feature manually
-% For more infomation, looking at the code
-
-% M.RO(6,[3,3,0]);
-% M.TR(3,[0,3,3]);
-% M.MD(2,5,3);
+%% 8 Export Skin Model Shape
+M.ExportSTL('Test_Skin_Model_Shape.stl')
 
 

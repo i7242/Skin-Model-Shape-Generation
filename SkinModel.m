@@ -56,7 +56,7 @@ classdef SkinModel < handle & dynamicprops
     properties(Hidden)
         % Normal vector for each triangle
         N;
-        % Vertice normal, which is calculated by the mean value of its one-disc triangles
+        % Vertice normal, which is calculated by the mean value of its one-ring triangles
         VN;
         
         % Basic Properties for FEA combination

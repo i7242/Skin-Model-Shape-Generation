@@ -20,7 +20,7 @@ The name is a string ending with ".stl".
 The format should be binary.
 Using "Read" method to read the STL file, and put data into "M".
 
-> M.Read('Test_Nominal_Model.stl');
+`M.Read('Test_Nominal_Model.stl');`
 
 There are two properties inside the instance "M":
 
@@ -29,51 +29,39 @@ There are two properties inside the instance "M":
 
 Using "ShowOrg" to plot the original model, which is usually considered as nominal model.
 
-> M.ShowOrg;
+`M.ShowOrg;`
 
-%% 3 Segment Model into "K" Surfaces
-% The segmentation uses spectral based method:
-%
-% # At first, a matrix contains topological and geometrical information was constructed.
-% # Then the eigenvectors correspond to the the first "N" largest "N" eigenvalues are calculated.
-%   The value of "N" is the first input of method "Seg".
-% # Using "K-means" clastering algorithm and the "N" eigenvectors,
-%   the entrances in the eigenvectors are clastered. This corresponds
-%   to the segmentation of the model surfaces. "K" is the number of
-%   surfaces, which is the second input of method "Seg".
-%
-% In simple application, we can assume the number of eigenvectors "N" is
-% the same as the number of surfaces "K".
-% For test model, we set both value as "8"
-M.Seg(8,8);
+## 3 Segment Model into "K" Surfaces
+The segmentation uses spectral based method:
 
-%%
-% After segmentation, "K" surface properties are added.
-% For "SF(i)", it is a struct data. It contains several fields:
-%
-% # "F": the index of trangles inside this surface.
-% # "T": n*4 matrix, the trangles of this surface. The first 3 column is
-% the  vertices index, the 4-th column is the triangle index in matrix before
-% segmentation.
-% # "V": m*4 matrix, the vertices in this surface. The first 3 column is
-% its coordinates, the 4-th column is its index in matrix before
-% segmentation.
-% # "N": normal vector of triangles.
-% # "VN": normal vector of vertices. Estimated based on "N".
-% # "D": deviation vector. Save the deviation value of vertex along normal
-% direction.
-%
+1. At first, a matrix contains topological and geometrical information was constructed.
+2. Then the eigenvectors correspond to the the first "N" largest "N" eigenvalues are calculated. The value of "N" is the first input of method "Seg".
+3. Using "K-means" clastering algorithm and the "N" eigenvectors, the entrances in the eigenvectors are clastered. This corresponds to the segmentation of the model surfaces. "K" is the number of surfaces, which is the second input of method "Seg".
 
-%%
-% After segmentation, we can plot the segmentation result using "ShowSeg" method.
-M.ShowSeg;
+In simple application, we can assume the number of eigenvectors "N" is the same as the number of surfaces "K".
+For test model, we set both value as "8"
 
-%%
-% Additionally, we can plot the numbering of each surface.
-M.ShowSegNum;
+`M.Seg(8,8);`
 
-%%
-% If the segmentation result is not acceptable, we may have two choices:
+After segmentation, "K" surface properties are added.
+For "SF(i)", it is a struct data. It contains several fields:
+
+1. "F": the index of trangles inside this surface.
+2. "T": n*4 matrix, the trangles of this surface. The first 3 column is the  vertices index, the 4-th column is the triangle index in matrix before segmentation.
+3. "V": m*4 matrix, the vertices in this surface. The first 3 column is its coordinates, the 4-th column is its index in matrix before segmentation.
+4. "N": normal vector of triangles.
+5. "VN": normal vector of vertices. Estimated based on "N".
+6. "D": deviation vector. Save the deviation value of vertex along normal direction.
+
+After segmentation, we can plot the segmentation result using "ShowSeg" method.
+
+`M.ShowSeg;`
+
+Additionally, we can plot the numbering of each surface.
+
+`M.ShowSegNum;`
+
+If the segmentation result is not acceptable, we may have two choices:
 %
 % # Clean the skin model instance "M", change parameter "N" and "K", do
 %       the segmentation again. This is for the segmentation result is too

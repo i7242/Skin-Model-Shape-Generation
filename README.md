@@ -137,6 +137,7 @@ Method "DivSim" will simulate the deviation according to the table.
 
 `M.DivSim;`
 
+
 ## 5 Solving the Combination by FEA
 The combination of the deviation value and nominal model are based on FEA. More details can be found in:
 
@@ -161,10 +162,12 @@ This is because some data for conduct FEA will be saved. Reloading of these data
 `save M_after_comb M
 load M_after_comb`
 
+
 ## 6 Use of 'ResetD'
-In some cases, we may not generate the desired form defects directly, and we may want to conduct the simulation again. Using "ResetD" method, we can erase the defects we have simulated, and conduct the simulation again from section *4 Simulate Manufacturing Deviations for Each Surface*. This avoided the clear and reload of the model.
+In some cases, we may not generate the desired form defects directly, and we may want to conduct the simulation again. Using "ResetD" method, we can erase the defects we have simulated, and conduct the simulation again from section **4 Simulate Manufacturing Deviations for Each Surface**. This avoided the clear and reload of the model.
 
 `M.ResetD;`
+
 
 ## 7 Export Skin Model Shape in STL File
 The generated skin model shape could be expoeted as STL file. Input is the file name ending with ".stl".

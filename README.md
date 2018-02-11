@@ -14,6 +14,7 @@ The instance "M" contains no data initially.
 
 `M=SkinModel;`
 
+
 ## 2 Read STL Model
 The STL file should be puted in current work folder, or sub-folders.
 The name is a string ending with ".stl".
@@ -30,6 +31,9 @@ There are two properties inside the instance "M":
 Using "ShowOrg" to plot the original model, which is usually considered as nominal model.
 
 `M.ShowOrg;`
+
+![](README/1_ORG.png)
+
 
 ## 3 Segment Model into "K" Surfaces
 The segmentation uses spectral based method:
@@ -57,9 +61,13 @@ After segmentation, we can plot the segmentation result using "ShowSeg" method.
 
 `M.ShowSeg;`
 
+![](README/2_SEG.png)
+
 Additionally, we can plot the numbering of each surface.
 
 `M.ShowSegNum;`
+
+![](README/3_SEG_NUM.png)
 
 If the segmentation result is not acceptable, we may have two choices:
 
@@ -76,6 +84,7 @@ In next time, user can load the model after segmentation directly:
 
 This is to avoid conduct segmentation process each time.
 Meanwhile,because the segmentation result is saved, users can define deviation simulation parameters for each surface, and simulate a batch of skin model shapes.
+
 
 ## 4 Simulate Manufacturing Deviations for Each Surface
 To simulate manufacturing deviations, two types of process can be applied:
@@ -143,6 +152,8 @@ Properties for FEA, and the generated skin model shape, are hiden properties, wh
 After combination, the skin model shape could be shown by method "ShowSM".
 
 `M.ShowSM;`
+
+![](README/4_SMS.png)
 
 The user is suggested to save the instance once they have conducted the first time of combination(using "Comb").
 This is because some data for conduct FEA will be saved. Reloading of these data will avoid unnecessary calculation.

@@ -1,4 +1,4 @@
-# Skin Model Generation Process
+# Skin Model Shape Generation Process
 
 
 ## Acknowledgement

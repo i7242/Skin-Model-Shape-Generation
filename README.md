@@ -158,7 +158,4 @@ In some cases, we may not generate the desired form defects directly, and we may
 ## 7 Export Skin Model Shape in STL File
 The generated skin model shape could be expoeted as STL file. Input is the file name ending with ".stl".
 
-`M.ExportSTL('Test_Skin_Model_Shape.stl')
-
-
-
+`M.ExportSTL('Test_Skin_Model_Shape.stl')`

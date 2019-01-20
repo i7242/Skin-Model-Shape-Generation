@@ -139,8 +139,7 @@ Method "DivSim" will simulate the deviation according to the table.
 ## 5 Solving the Combination by FEA
 The combination of the deviation value and nominal model are based on FEA. More details can be found in:
 
-> Xingyu Yan, Alex Ballu. Generation of consistent skin model shape based on FEA method. Int J Adv Manuf Technol 2017. doi:10.1007/s00170-017-0177-5.  
-<http://link.springer.com/10.1007/s00170-017-0177-5>
+> Xingyu Yan, Alex Ballu. Generation of consistent skin model shape based on FEA method. Int J Adv Manuf Technol 2017. doi:10.1007/s00170-017-0177-5. <http://link.springer.com/10.1007/s00170-017-0177-5>
 
 The input "1" is a scale value, which could be used to amplify the defects. In default, we set it "1".
 
@@ -157,8 +156,8 @@ After combination, the skin model shape could be shown by method "ShowSM".
 The user is suggested to save the instance once they have conducted the first time of combination(using "Comb").
 This is because some data for conduct FEA will be saved. Reloading of these data will avoid unnecessary calculation.
 
-`save M_after_comb M  
-load M_after_comb`
+`save M_after_comb M`  
+`load M_after_comb`
 
 
 ## 6 Use of 'ResetD'

@@ -1,5 +1,5 @@
 # Skin Model Shape Generation Process
-
+Part Model with Non-ideal Surfaces
 
 ## Acknowledgement
 This work was conducted at Institut de Mécanique et d'Ingénierie (I2M), Université de Bordeaux. 

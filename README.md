@@ -170,3 +170,7 @@ In some cases, we may not generate the desired form defects directly, and we may
 The generated skin model shape could be expoeted as STL file. Input is the file name ending with ".stl".
 
 `M.ExportSTL('Test_Skin_Model_Shape.stl')`
+
+## 8 Video Demo
+Here is a video to show its function:  
+<iframe width="560" height="315" src="https://www.youtube.com/embed/mq1yDhGWfD8" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
